@@ -2,6 +2,7 @@ import csv
 import os
 import time
 import tkinter as tk
+import random
 from tkinter import messagebox
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -179,6 +180,42 @@ def select_goal(driver, goal_text="Create content on Pinterest to grow an audien
         print(f"❌ Error selecting goal: {e}")
 
 
+# **🔹 Select Business Category (Beauty or Fashion)**
+def select_business_category(driver):
+    try:
+        category_dropdown = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "verticals"))
+        )
+        business_categories = ["BEAUTY", "FASHION"]
+        selected_category = random.choice(business_categories)  # Randomly select one
+
+        category_dropdown.click()
+        time.sleep(1)
+
+        option_xpath = f"//select[@id='verticals']/option[@value='{selected_category}']"
+        option = WebDriverWait(driver, 5).until(
+            EC.element_to_be_clickable((By.XPATH, option_xpath))
+        )
+        option.click()
+
+        print(f"✅ Selected business category: {selected_category}")
+
+    except Exception as e:
+        print(f"❌ Error selecting business category: {e}")
+
+
+# **🔹 Click 'Done' Button**
+def click_done_button(driver):
+    try:
+        done_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'B1n tg7 tBJ dyH iFc sAJ H2s') and text()='Done']"))
+        )
+        done_button.click()
+        print("✅ 'Done' button clicked successfully!")
+    except Exception as e:
+        print(f"❌ Error clicking 'Done' button: {e}")
+
+
 # **🔹 Show Exit Dialog**
 def show_exit_dialog():
     root = tk.Tk()
@@ -234,6 +271,12 @@ if __name__ == "__main__":
     time.sleep(2)
 
     select_goal(driver)  # ✅ Select goal from dropdown
+    time.sleep(2)
+
+    select_business_category(driver)  # ✅ Business Category Selected
+    time.sleep(2)
+
+    click_done_button(driver)  # ✅ Click 'Done' button
     time.sleep(2)
 
     show_exit_dialog()
