@@ -104,24 +104,12 @@ def click_create_account_button(driver):
         print(f"❌ Error clicking 'Create account' button: {e}")
 
 
-# **🔹 Verify Element Exists**
-def verify_element_exists(driver, by, value):
-    try:
-        element = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((by, value))
-        )
-        print(f"✅ Element found: {value}")
-        return element
-    except:
-        print(f"❌ Element not found: {value}")
-        return None
-
-
 # **🔹 Select Business Type (Radio Button)**
 def select_radio_button(driver, radio_id):
     try:
-        verify_element_exists(driver, By.ID, radio_id)  # Check if element exists
-        radio_button = driver.find_element(By.ID, radio_id)
+        radio_button = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, radio_id))
+        )
         driver.execute_script("arguments[0].click();", radio_button)  # JavaScript click
         print(f"✅ Radio button '{radio_id}' selected successfully!")
     except Exception as e:
@@ -140,25 +128,28 @@ def click_next_button(driver):
         print(f"❌ Error clicking 'Next' button: {e}")
 
 
-# **🔹 Save User Data in CSV**
-def save_user_to_csv(user_data):
-    file_path = "registered_users.csv"
-    file_exists = os.path.exists(file_path)
+# **🔹 Enter Business Name**
+def enter_business_name(driver, business_name):
+    try:
+        business_name_field = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "businessName"))
+        )
+        clear_and_enter_text(business_name_field, business_name.upper())  # Capitalize username
+        print(f"✅ Business name entered: {business_name.upper()}")
+    except Exception as e:
+        print(f"❌ Error entering business name: {e}")
 
-    fieldnames = [
-        "full_name", "username", "email", "password", "date_of_birth",
-        "address", "city", "state", "zip_code", "phone_number",
-        "company", "job_title"
-    ]
 
-    with open(file_path, mode="a", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-
-        if not file_exists:
-            writer.writeheader()  # Write header only once
-
-        writer.writerow(user_data)
-        print(f"✅ User data saved: {user_data}")
+# **🔹 Select 'No Website' Checkbox**
+def select_no_website_checkbox(driver):
+    try:
+        no_website_checkbox = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "noWebsite"))
+        )
+        driver.execute_script("arguments[0].click();", no_website_checkbox)  # JavaScript Click
+        print("✅ 'No Website' checkbox selected successfully!")
+    except Exception as e:
+        print(f"❌ Error selecting 'No Website' checkbox: {e}")
 
 
 # **🔹 Show Exit Dialog**
@@ -193,12 +184,10 @@ if __name__ == "__main__":
         old_url = driver.current_url
         time.sleep(5)  # Allow page to change
         if old_url != driver.current_url:
-            save_user_to_csv(fake_user)
             break
         else:
             print("❌ Retrying with new user data...")
 
-    # **Go to Business Setup Page & Select Business Type**
     driver.get("https://www.pinterest.com/business/hub/")
     time.sleep(5)
 
@@ -208,5 +197,14 @@ if __name__ == "__main__":
     click_next_button(driver)
     time.sleep(2)
 
-    show_exit_dialog()  # Show exit message
+    enter_business_name(driver, fake_user["username"])
+    time.sleep(2)
+
+    select_no_website_checkbox(driver)  # ✅ 'No Website' checkbox selected
+    time.sleep(2)
+
+    click_next_button(driver)  # ✅ Next button click after checkbox
+    time.sleep(2)
+
+    show_exit_dialog()
     driver.quit()
