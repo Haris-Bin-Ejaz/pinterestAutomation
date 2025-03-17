@@ -152,6 +152,33 @@ def select_no_website_checkbox(driver):
         print(f"❌ Error selecting 'No Website' checkbox: {e}")
 
 
+# **🔹 Select Goal from Dropdown**
+def select_goal(driver, goal_text="Create content on Pinterest to grow an audience"):
+    try:
+        # Wait for the dropdown input to be clickable
+        goal_input = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "combobox-tags"))
+        )
+        goal_input.click()  # Click to activate dropdown
+        time.sleep(2)  # Allow dropdown to appear
+
+        # Enter the text
+        goal_input.send_keys(goal_text)
+        time.sleep(2)  # Allow suggestions to load
+
+        # Press ARROW_DOWN 3 times to move to the 4th option
+        for _ in range(4):
+            goal_input.send_keys(Keys.ARROW_DOWN)
+            time.sleep(0.5)  # Small delay to allow dropdown navigation
+
+        # Press Enter to select the highlighted option
+        goal_input.send_keys(Keys.ENTER)
+
+        print(f"✅ 4th Goal selected: {goal_text}")
+    except Exception as e:
+        print(f"❌ Error selecting goal: {e}")
+
+
 # **🔹 Show Exit Dialog**
 def show_exit_dialog():
     root = tk.Tk()
@@ -204,6 +231,9 @@ if __name__ == "__main__":
     time.sleep(2)
 
     click_next_button(driver)  # ✅ Next button click after checkbox
+    time.sleep(2)
+
+    select_goal(driver)  # ✅ Select goal from dropdown
     time.sleep(2)
 
     show_exit_dialog()
