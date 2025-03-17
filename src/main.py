@@ -104,6 +104,27 @@ def click_create_account_button(driver):
     except Exception as e:
         print(f"❌ Error clicking 'Create account' button: {e}")
 
+# **🔹 Save User Data in CSV**
+def save_user_to_csv(user_data):
+    file_path = "registered_users.csv"
+    file_exists = os.path.exists(file_path)
+
+    fieldnames = [
+        "full_name", "username", "email", "password", "date_of_birth",
+        "address", "city", "state", "zip_code", "phone_number",
+        "company", "job_title"
+    ]
+
+    with open(file_path, mode="a", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+        if not file_exists:
+            writer.writeheader()  # Write header only once
+
+        writer.writerow(user_data)
+        print(f"✅ User data saved: {user_data}")
+
+
 
 # **🔹 Select Business Type (Radio Button)**
 def select_radio_button(driver, radio_id):
@@ -216,6 +237,33 @@ def click_done_button(driver):
         print(f"❌ Error clicking 'Done' button: {e}")
 
 
+# **🔹 Click 'Build Your Profile' Button**
+def click_correct_build_profile(driver):
+    try:
+        profile_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//div[@role='button' and @aria-label='Build your profile'][descendant::h2[contains(text(), 'Showcase your brand')]]")
+            )
+        )
+        profile_button.click()
+        print("✅ 'Build Your Profile' button clicked successfully!")
+    except Exception as e:
+        print(f"❌ Error clicking 'Build Your Profile' button: {e}")
+
+
+# **🔹 Click 'Next' Button (After 'Build Your Profile')**
+def click_next_after_build_profile(driver):
+    try:
+        next_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//a[contains(@class, 'S9z') and contains(@href, '/settings')]//div[text()='Next']"))
+        )
+        next_button.click()
+        print("✅ 'Next' button clicked successfully!")
+    except Exception as e:
+        print(f"❌ Error clicking 'Next' button: {e}")
+
+
 # **🔹 Show Exit Dialog**
 def show_exit_dialog():
     root = tk.Tk()
@@ -248,6 +296,7 @@ if __name__ == "__main__":
         old_url = driver.current_url
         time.sleep(5)  # Allow page to change
         if old_url != driver.current_url:
+            save_user_to_csv(fake_user)
             break
         else:
             print("❌ Retrying with new user data...")
@@ -278,6 +327,11 @@ if __name__ == "__main__":
 
     click_done_button(driver)  # ✅ Click 'Done' button
     time.sleep(2)
+
+    click_correct_build_profile(driver)  # ✅ Click correct 'Build Your Profile' button
+    time.sleep(3)
+    click_next_after_build_profile(driver)  # ✅ Click 'Next' button after profile step
+    time.sleep(3)
 
     show_exit_dialog()
     driver.quit()
